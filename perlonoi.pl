@@ -5,6 +5,7 @@ use warnings;
 use GD::Simple;
 use Math::Geometry::Voronoi;
 use Getopt::ArgParse;
+use Data::Dumper;
 
 my $argparse = Getopt::ArgParse->new_parser(
 	prog 		=> 'Perlonoi',
@@ -51,7 +52,7 @@ my $lines = $geo->lines;
 my $edges = $geo->edges;
 my $vertices = $geo->vertices;
 
-my @polygons = $geo->polygons;
+my @polygons = $geo->polygons(normalize_vertices => sub { int($_[0]) });
 
 my $img = GD::Simple->new(4096, 4096);
 $img->bgcolor('red');
@@ -74,6 +75,26 @@ sub draw_polygon {
 foreach my $polygon (@polygons)
 {
 	draw_polygon($polygon);
+}
+
+
+if( $args->bin )
+{
+	open( my $binout, '>:raw', $args->bin ) or die "Unable to open $!";
+	my $num_polygons = scalar(@polygons);
+	print $binout pack( 'L<', $num_polygons );
+	for( my $i = 0; $i < $num_polygons; $i++ )
+	{
+		my $polygon = $polygons[$i];
+		my $num_points = scalar(@$polygon);
+		print $binout pack( 'L<', $num_points );
+		for( my $j = 0; $j < $num_points; $j++ )
+		{
+			my $point = $polygons[$i][$j];
+			print $binout pack('L<', @$point[0]);
+			print $binout pack('L<', @$point[1]);
+		}
+	}
 }
 
 open my $out, '>', $args->output_path or die;
