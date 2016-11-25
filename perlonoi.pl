@@ -57,12 +57,6 @@ my $img = GD::Simple->new(4096, 4096);
 $img->bgcolor('red');
 $img->fgcolor('blue');
 
-
-foreach my $polygon (@polygons)
-{
-	draw_polygon($polygon);
-}
-
 sub draw_polygon {
 	my @polygon = $_[0];
 	my $element = $polygon[0];
@@ -75,6 +69,11 @@ sub draw_polygon {
 		$img->moveTo(@$from[0], @$from[1]);
 		$img->lineTo(@$to[0], @$to[1]);
 	}
+}
+
+foreach my $polygon (@polygons)
+{
+	draw_polygon($polygon);
 }
 
 open my $out, '>', $args->output_path or die;
