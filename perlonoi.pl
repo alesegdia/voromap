@@ -4,7 +4,20 @@ use warnings;
 
 use GD::Simple;
 use Math::Geometry::Voronoi;
-use Data::Dumper;
+use Getopt::ArgParse;
+
+my $argparse = Getopt::ArgParse->new_parser(
+	prog 		=> 'Perlonoi',
+	description => 'Generates a voronoi diagram');
+
+$argparse->add_arg('space_width', required => 1, help => "generation area width");
+$argparse->add_arg('space_height', required => 1, help => "generation area height");
+$argparse->add_arg('num_points', required => 1, help => "number of points to generate");
+$argparse->add_arg('output_path', required => 1, help => "path where to write the png file");
+$argparse->add_arg('--bin', '-b', required => 0,
+	help => "if used, the program will output the polygons to a binary file");
+
+my $args = $argparse->parse_args();
 
 sub generate_points {
 	my $width = $_[0];
@@ -29,7 +42,7 @@ my @points = (
 	[50, 20],
 	[20, 40]);
 
-@points = generate_points(4096, 4096, 4096);
+@points = generate_points($args->space_width, $args->space_height, $args->num_points);
 
 my $geo = Math::Geometry::Voronoi->new(points => \@points);
 $geo->compute;
@@ -64,6 +77,6 @@ sub draw_polygon {
 	}
 }
 
-open my $out, '>', 'img.png' or die;
+open my $out, '>', $args->output_path or die;
 binmode $out;
 print $out $img->png;
