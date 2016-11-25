@@ -1,7 +1,5 @@
 # voromap
 
-Voronoi based map generation
-
 ## Requirements
 
 * perl
